@@ -1,0 +1,7 @@
+{:known
+ {:ok {:id "shape.rectangle", :label "Rectangle", :params "{x,y}"}},
+ :unknown
+ {:error
+  {:kind :vectorcraft/unknown-command,
+   :hint
+   "Unknown engine command \"bad\"; run vectorcraft catalog to list valid ids."}}}

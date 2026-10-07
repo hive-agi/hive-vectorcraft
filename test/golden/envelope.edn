@@ -1,0 +1,8 @@
+{:request
+ [:or
+  [:map [:ok :map]]
+  [:map [:error [:map [:kind :keyword] [:hint :string]]]]],
+ :text
+ [:or
+  [:map [:ok :string]]
+  [:map [:error [:map [:kind :keyword] [:hint :string]]]]]}
