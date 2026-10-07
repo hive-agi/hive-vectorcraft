@@ -1,6 +1,8 @@
 (ns hive-vectorcraft.service
   "Promote request values into catalog results and boundary dispatch; no transport is created here."
   (:require [clojure.string :as str]
+            [malli.core :as m]
+            [hive-vectorcraft.schema :as schema]
             [hive-vectorcraft.core :as core]
             [hive-vectorcraft.port :as port]))
 
@@ -38,3 +40,7 @@
                  (catch Exception e
                    (core/refusal :vectorcraft/transport-failed
                                  (str "Check the injected transport: " (ex-message e))))))))
+
+(m/=> catalog [:=> [:cat schema/Catalog [:maybe :string]] (schema/envelope :any)])
+(m/=> doctor [:=> [:cat schema/Catalog :any] (schema/envelope :map)])
+(m/=> call [:=> [:cat schema/Catalog :any :any :any :any] (schema/envelope :any)])
