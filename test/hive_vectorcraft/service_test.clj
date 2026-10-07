@@ -39,11 +39,14 @@
   (let [instance (addon/addon-ctor {})]
     (is (:success? (protocol/initialize! instance {})))
     (is (= :degraded (:status (protocol/health instance))))
-    (let [definition (first (protocol/tools instance))]
+    (let [definition (first (protocol/tools instance))
+          handler (:handler definition)]
       (is (= "vectorcraft" (:name definition)))
-      (is (= true (:isError ((:handler definition) {"command" "call" "engine_command" "shape.rectangle"}))))
-      (is (= true (:isError ((:handler definition) {"command" "wrong"}))))
-      (is (not (:isError ((:handler definition) {"command" "doctor"})))))
+      (is (= true (:isError (handler {"command" "call" "engine_command" "shape.rectangle"}))))
+      (is (= true (:isError (handler {"command" "call" "engine_command" "shape.rectangle" "params" nil}))))
+      (is (= true (:isError (handler {"command" "call" "engine_command" "shape.rectangle" "id" -1}))))
+      (is (= true (:isError (handler {"command" "wrong"}))))
+      (is (not (:isError (handler {"command" "doctor"})))))
     (protocol/shutdown! instance)))
 
 (deftest reference-catalog-loaded

@@ -22,8 +22,12 @@
                               "doctor" (service/doctor entries transport)
                               "call" (service/call entries transport
                                                    (or (get args "engine_command") (:engine_command args))
-                                                   (or (get args "params") (:params args) {})
-                                                   (or (get args "id") (:id args) 0))
+                                                   (cond (contains? args "params") (get args "params")
+                                                         (contains? args :params) (:params args)
+                                                         :else {})
+                                                   (cond (contains? args "id") (get args "id")
+                                                         (contains? args :id) (:id args)
+                                                         :else 0))
                               {:error {:kind :vectorcraft/unknown-tool-command
                                        :hint "Choose catalog, doctor or call."}})]
                 (if (:error outcome)
