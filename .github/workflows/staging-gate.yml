@@ -4,12 +4,7 @@ name: staging-gate
 # DECLARED classpath (no local.deps.edn), and only a green staging is promoted
 # to main, where release.yml mints the version. This workflow never publishes.
 #
-# Runs unchanged on GitHub Actions and Gitea Actions: the Clojure CLI comes from
-# the official installer, not DeLaGuardo/setup-clojure, whose GitHub API call
-# fails under Gitea's GITHUB_TOKEN.
-#
-# Secrets (optional): MAVEN_USERNAME, MAVEN_TOKEN, for deps served only by the
-# private hive-gitea registry.
+# The Clojure CLI comes from the official installer.
 
 on:
   push:
@@ -27,9 +22,6 @@ jobs:
   gate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    env:
-      MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-      MAVEN_TOKEN: ${{ secrets.MAVEN_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,23 +42,6 @@ jobs:
           chmod +x /tmp/clj-install.sh
           sudo /tmp/clj-install.sh
           clojure --version
-
-      - name: Private-registry credentials
-        if: env.MAVEN_TOKEN != ''
-        run: |
-          CLJ_CONFIG="${CLJ_CONFIG:-${XDG_CONFIG_HOME:+$XDG_CONFIG_HOME/clojure}}"
-          CLJ_CONFIG="${CLJ_CONFIG:-$HOME/.clojure}"
-          mkdir -p "$CLJ_CONFIG" "$HOME/.m2"
-          cat > "$CLJ_CONFIG/deps.edn" <<'EOF'
-          {:mvn/repos {"hive-gitea" {:url "https://gitea.hive-mcp.com/api/packages/hive-agi/maven"}}}
-          EOF
-          cat > "$HOME/.m2/settings.xml" <<EOF
-          <settings><servers><server>
-            <id>hive-gitea</id>
-            <username>${MAVEN_USERNAME}</username>
-            <password>${MAVEN_TOKEN}</password>
-          </server></servers></settings>
-          EOF
 
       # The pins must resolve from the registries before anything else is
       # worth running: this is the step a dependency sweep can break.
