@@ -47,13 +47,16 @@
     (refusal :vectorcraft/invalid-frame "Encode one JSON object with method as a single line; remove line breaks.")))
 
 (defn response-line
-  "Validate the structural response after the transport's JSON decoder."
+  "Validate the structural response after the transport's JSON decoder; preserve false and null results."
   [response]
-  (cond
-    (not (map? response)) (refusal :vectorcraft/invalid-response "Decode one JSON response object.")
-    (not (or (contains? response :ok) (contains? response "ok")))
-    (refusal :vectorcraft/invalid-response "Response must contain ok.")
-    (= true (or (:ok response) (get response "ok")))
-    {:ok (or (:result response) (get response "result"))}
-    :else (refusal :vectorcraft/upstream-error
-                   (str "VectorCraft rejected the request: " (or (:error response) (get response "error") "unknown error")))))
+  (let [present? (and (map? response) (or (contains? response :ok) (contains? response "ok")))
+        status (if (contains? response :ok) (:ok response) (get response "ok"))]
+    (cond
+      (not (map? response)) (refusal :vectorcraft/invalid-response "Decode one JSON response object.")
+      (not present?) (refusal :vectorcraft/invalid-response "Response must contain boolean ok.")
+      (not (or (= true status) (= false status)))
+      (refusal :vectorcraft/invalid-response "Response ok must be boolean.")
+      (= true status)
+      {:ok (if (contains? response :result) (:result response) (get response "result"))}
+      :else (refusal :vectorcraft/upstream-error
+                     (str "VectorCraft rejected the request: " (or (:error response) (get response "error") "unknown error"))))))

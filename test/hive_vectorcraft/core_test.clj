@@ -32,4 +32,7 @@
   (is (= "document.inspect" (get-in (core/control-request sample "document.inspect" {} 1) [:ok :method])))
   (is (= :vectorcraft/unknown-method (get-in (core/control-request sample "bogus" {} 1) [:error :kind])))
   (is (= {:ok 3} (core/response-line {"ok" true "result" 3})))
+  (is (= {:ok false} (core/response-line {"ok" true "result" false})))
+  (is (= {:ok nil} (core/response-line {:ok true :result nil})))
+  (is (= :vectorcraft/invalid-response (get-in (core/response-line {:ok "true"}) [:error :kind])))
   (is (= :vectorcraft/upstream-error (get-in (core/response-line {:ok false :error "no doc"}) [:error :kind]))))
