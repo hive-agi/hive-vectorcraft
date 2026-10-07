@@ -17,5 +17,6 @@
                                io.github.hive-agi/hive-test {:mvn/version "0.4.11"}}
                   :main-opts ["-m" "kaocha.runner"]}
            :build {:deps {io.github.hive-agi/hive-build {:mvn/version "0.1.28"}}
-                   :ns-default hive-build.api}}
+                   :ns-default hive-build.api}
+           :cljs {:extra-paths ["dev"] :extra-deps {thheller/shadow-cljs {:mvn/version "3.5.5"}}}}
  :mvn/repos {"hive-gitea" {:url "https://gitea.hive-mcp.com/api/packages/hive-agi/maven"}}}

@@ -1,0 +1,5 @@
+{:deps true
+ :source-paths ["src" "dev"]
+ :builds {:portability {:target :node-script
+                        :output-to "target/portability.js"
+                        :main portability/-main}}}
