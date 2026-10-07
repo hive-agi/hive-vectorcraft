@@ -53,10 +53,16 @@ fn errors_are_envelopes() {
         hive_free(ptr);
     }
     let bad = [0xffu8, 0];
-    let ptr = hive_call(op.as_ptr(), bad.as_ptr().cast::<c_char>());
-    let value: Value = serde_json::from_str(unsafe { CStr::from_ptr(ptr) }.to_str().unwrap()).unwrap();
-    assert!(value["error"].as_str().unwrap().contains("UTF-8"));
-    hive_free(ptr);
+    for (operation, request) in [
+        (op.as_ptr(), bad.as_ptr().cast::<c_char>()),
+        (bad.as_ptr().cast::<c_char>(), op.as_ptr()),
+    ] {
+        let ptr = hive_call(operation, request);
+        let value: Value = serde_json::from_str(unsafe { CStr::from_ptr(ptr) }.to_str().unwrap()).unwrap();
+        assert_eq!(value["ok"], false);
+        assert!(value["error"].as_str().unwrap().contains("UTF-8"));
+        hive_free(ptr);
+    }
     hive_free(std::ptr::null_mut());
 }
 
@@ -71,7 +77,16 @@ fn document_flow() {
     execute("file.new", json!({}));
     execute("shape.rectangle", json!({"x":10,"y":10,"width":80,"height":40}));
     execute("shape.ellipse", json!({"x":100,"y":100,"width":60,"height":60}));
-    execute("document.inspect", json!({}));
+    let before = execute("document.inspect", json!({}));
+    let path = std::env::temp_dir().join(format!("vectorcraft-cabi-{}.vectorcraft", std::process::id()));
+    let saved = call("app.save", json!({"path": path}));
+    assert_eq!(saved["ok"], true, "save: {saved}");
+    let reopened = call("app.open", json!({"path": path}));
+    assert_eq!(reopened["ok"], true, "reopen: {reopened}");
+    let after = call("document.inspect", json!({}));
+    assert_eq!(after["ok"], true, "inspect after reopen: {after}");
+    assert_eq!(before["objects"], after["value"]["objects"]);
+    std::fs::remove_file(path).unwrap();
     let rendered = call("ui.render", json!({"scale":0.25}));
     assert_eq!(rendered["ok"], true, "{rendered}");
     let v = &rendered["value"];
