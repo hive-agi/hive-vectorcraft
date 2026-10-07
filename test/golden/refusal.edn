@@ -1,0 +1,4 @@
+{:invalid
+ {:error {:kind :vectorcraft/invalid-id, :hint "Use a valid id"}},
+ :missing
+ {:error {:kind :vectorcraft/no-transport, :hint "Inject a port"}}}
