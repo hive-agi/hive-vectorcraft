@@ -70,9 +70,19 @@
 (defn control [root]
   (let [lines (str/split-lines (slurp (io/file root "docs/control-protocol.md")))
         rows (->> lines (drop-while #(not (str/starts-with? % "| Method |")))
-                  (drop 2) (take-while #(str/starts-with? % "|")))]
-    (->> rows (mapcat #(map second (re-seq #"`([^`]+)`" (second (str/split % #"\|")))))
-         (filter #(not (str/includes? % " "))) distinct sort vec)))
+                  (drop 2) (take-while #(str/starts-with? % "|"))
+                  (take-while #(not (str/includes? % " with `useArtboards`"))))]
+    (->> rows
+         (mapcat (fn [row]
+                   (let [cell (second (str/split row #"\|"))
+                         methods (map second (re-seq #"`([^`]+)`" cell))
+                         prefix (first methods)]
+                     (map (fn [method]
+                            (if (and (str/starts-with? method ".")
+                                     (str/includes? prefix "."))
+                              (str (subs prefix 0 (inc (str/last-index-of prefix "."))) (subs method 1))
+                              method)) methods))))
+         distinct sort vec)))
 
 (defn -main [root]
   (when-not root (throw (ex-info "Supply VectorCraft reference checkout root" {})))

@@ -8,7 +8,8 @@ seconds=${PORTABILITY_TIMEOUT:-120}
 report=${PORTABILITY_REPORT_DIR:-$(mktemp -d -t vectorcraft-portability.XXXXXX)}
 mkdir -p "$report"
 printf 'host\tstatus\tseconds\n' > "$report/results.tsv"
-for host in "${@:-jvm cljw cljrs cljs}"; do
+if (( $# == 0 )); then set -- jvm cljw cljrs cljs; fi
+for host in "$@"; do
   start=$SECONDS
   status=passed
   case "$host" in

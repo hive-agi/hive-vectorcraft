@@ -50,4 +50,6 @@
   (let [actual (catalog/load-catalog)]
     (is (= 519 (count (:engine actual))))
     (is (= 25 (count (:mcp actual))))
-    (is (= 37 (count (:control actual))))))
+    (is (= 24 (count (:control actual))))
+    (is (some #(= "ui.dialog.confirm" %) (:control actual)))
+    (is (not-any? #(= ".confirm" %) (:control actual)))))
