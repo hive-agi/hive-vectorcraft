@@ -1,0 +1,37 @@
+{:bad-id
+ {:result
+  {:isError true,
+   :content
+   [{:type "text",
+     :text
+     ":vectorcraft/invalid-id: Pass a nonnegative integer or string request id."}]},
+  :requests []},
+ :bad-params
+ {:result
+  {:isError true,
+   :content
+   [{:type "text",
+     :text
+     ":vectorcraft/invalid-params: Pass params as an object/map (use {} for no params)."}]},
+  :requests []},
+ :doctor
+ {:result
+  {:content
+   [{:type "text",
+     :text
+     "{:catalog {:revision \"65c5953\", :engine 1, :mcp 1, :control 1}, :transport :injected, :hint \"Injected transport ready.\"}"}]},
+  :requests []},
+ :unknown
+ {:result
+  {:isError true,
+   :content
+   [{:type "text",
+     :text
+     ":vectorcraft/unknown-tool-command: Choose catalog, doctor, call or control."}]},
+  :requests []},
+ :valid
+ {:result {:content [{:type "text", :text "{:id 7}"}]},
+  :requests
+  [{:id 9,
+    :method "engine.execute",
+    :params {:command "shape.rectangle", :params {:x 2}}}]}}

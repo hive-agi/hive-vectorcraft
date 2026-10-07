@@ -1,0 +1,2 @@
+{:configured {:configuration {:transport :stub}},
+ :default {:configuration {}}}

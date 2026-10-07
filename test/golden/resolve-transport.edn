@@ -1,0 +1,6 @@
+{:absent nil,
+ :configured
+ {:host "127.0.0.1", :port 7979, :connect-ms 2000, :timeout-ms 30000},
+ :init-config
+ {:host "127.0.0.1", :port 8080, :connect-ms 2000, :timeout-ms 30000},
+ :injected :injected-port}

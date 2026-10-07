@@ -1,0 +1,18 @@
+[package]
+name = "vectorcraft-cabi"
+version = "0.4.0"
+edition = "2024"
+license = "MIT"
+description = "JSON C ABI for the VectorCraft headless engine"
+
+[lib]
+name = "vectorcraft"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vectorcraft-mcp = { path = "/home/klein/PP/hive/clones-ref/vectorcraft/crates/mcp" }
+serde_json = "1"
+
+[dev-dependencies]
+libloading = "0.8"
+base64 = "0.22"

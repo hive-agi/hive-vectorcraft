@@ -1,0 +1,15 @@
+{:missing
+ {:error
+  {:kind :vectorcraft/no-transport,
+   :hint
+   "Start VectorCraft with --control <port> and set :control-port (or VECTORCRAFT_CONTROL_PORT)."}},
+ :unknown
+ {:error
+  {:kind :vectorcraft/unknown-method,
+   :hint
+   "Unknown control method; run vectorcraft catalog for allowed methods."}},
+ :upstream
+ {:error
+  {:kind :vectorcraft/upstream-error,
+   :hint "VectorCraft rejected the request: no document"}},
+ :valid {:ok {:layers 1}}}

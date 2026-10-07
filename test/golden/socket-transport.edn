@@ -1,0 +1,6 @@
+{:default
+ {:host "127.0.0.1", :port 7979, :connect-ms 2000, :timeout-ms 30000},
+ :port
+ {:host "127.0.0.1", :port 9001, :connect-ms 2000, :timeout-ms 30000},
+ :timeout
+ {:host "127.0.0.1", :port 7979, :connect-ms 2000, :timeout-ms 500}}

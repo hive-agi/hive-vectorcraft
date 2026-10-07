@@ -2,7 +2,9 @@
   "JVM loopback client for the app's --control channel: one JSON line out, one JSON line back."
   (:require [clojure.data.json :as json]
             [hive-vectorcraft.core :as core]
-            [hive-vectorcraft.port :as port])
+            [hive-vectorcraft.port :as port]
+            [malli.core :as m]
+            [hive-vectorcraft.schema :as schema])
   (:import (java.io BufferedReader InputStreamReader OutputStreamWriter)
            (java.net InetSocketAddress Socket)
            (java.nio.charset StandardCharsets)))
@@ -11,7 +13,7 @@
   "Loopback host, the port the app was started with, and per-request connect and read bounds."
   {:host "127.0.0.1" :port 7979 :connect-ms 2000 :timeout-ms 30000})
 
-(defn exchange!
+(defn- exchange!
   "Send one framed line and read one reply line over a fresh connection; throws on I/O failure."
   [{:keys [host port connect-ms timeout-ms]} line]
   (with-open [socket (doto (Socket.)
@@ -36,3 +38,5 @@
   "Build a transport for an app listening on --control <port>; config overrides default-config."
   [config]
   (->SocketTransport (merge default-config config)))
+
+(m/=> socket-transport [:=> [:cat [:maybe :map]] [:fn #(satisfies? port/ControlTransport %)]])

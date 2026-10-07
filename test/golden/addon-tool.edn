@@ -1,0 +1,22 @@
+{:tool
+ {:name "vectorcraft",
+  :inputSchema
+  {:type "object",
+   :required ["command"],
+   :additionalProperties false,
+   :properties
+   {"command"
+    {:type "string", :enum ["catalog" "doctor" "call" "control"]},
+    "query"
+    {:type "string",
+     :description "Catalog section or exact engine command id."},
+    "engine_command"
+    {:type "string",
+     :description "Exact engine command id to execute."},
+    "method"
+    {:type "string",
+     :description
+     "Control method for command=control (see catalog query=control)."},
+    "params"
+    {:type "object", :description "Engine or control parameters."},
+    "id" {:description "Nonnegative integer or string request id."}}}}}

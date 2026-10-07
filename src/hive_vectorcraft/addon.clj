@@ -1,6 +1,8 @@
 (ns hive-vectorcraft.addon
   "Single host-neutral IAddon. Catalog and diagnosis work without VectorCraft; calls require an injected port."
   (:require [hive-addon.protocol :as addon]
+            [malli.core :as m]
+            [hive-vectorcraft.schema :as schema]
             [hive-vectorcraft.catalog :as catalog]
             [hive-vectorcraft.service :as service]
             [hive-vectorcraft.transport.socket :as socket]))
@@ -73,3 +75,8 @@
   "Host manifest entry point. Config may inject :transport, but never requires one to mount."
   [config]
   (->VectorcraftAddon (atom {}) (or config {})))
+
+(m/=> resolve-transport [:=> [:cat [:maybe :map] [:maybe :map]] :any])
+
+(m/=> tool [:=> [:cat schema/Catalog :any] :map])
+(m/=> addon-ctor [:=> [:cat :map] :any])

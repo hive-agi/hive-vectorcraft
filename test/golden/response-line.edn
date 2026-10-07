@@ -1,0 +1,11 @@
+{:false {:ok false},
+ :invalid
+ {:error
+  {:kind :vectorcraft/invalid-response,
+   :hint "Response ok must be boolean."}},
+ :null {:ok nil},
+ :true {:ok {:id 3}},
+ :upstream
+ {:error
+  {:kind :vectorcraft/upstream-error,
+   :hint "VectorCraft rejected the request: failed"}}}
