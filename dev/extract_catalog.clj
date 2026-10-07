@@ -38,15 +38,27 @@
 (defn literal [s]
   (try (edn/read-string s) (catch Exception _ s)))
 
+(defn split-on [text delimiter]
+  (loop [start 0 pieces []]
+    (if-let [at (str/index-of text delimiter start)]
+      (recur (+ at (count delimiter)) (conj pieces (subs text start at)))
+      (conj pieces (subs text start)))))
+
+(defn backtick-values [text]
+  (loop [at 0 values []]
+    (if-let [open (str/index-of text "`" at)]
+      (if-let [close (str/index-of text "`" (inc open))]
+        (recur (inc close) (conj values (subs text (inc open) close)))
+        values)
+      values)))
+
 (defn engine [root]
   (let [dir (io/file root "crates/engine/src/cmd")]
     (->> (file-seq dir)
          (filter #(and (.isFile %) (str/ends-with? (.getName %) ".rs")))
          (mapcat (fn [file]
                    (for [call (calls (slurp file) "cmd!(")
-                         :let [parts (fields call)
-                               parts (if (= "query" (first (str/split (first parts) #"\\s+")))
-                                       (assoc parts 0 (str/replace-first (first parts) #"^query\\s+" "")) parts)]
+                         :let [parts (fields call)]
                          :when (and (<= 7 (count parts)) (string? (literal (first parts)))
                                     (str/starts-with? (first parts) "\""))]
                      {:id (literal (nth parts 0)) :label (literal (nth parts 1))
@@ -74,8 +86,8 @@
                   (take-while #(not (str/includes? % " with `useArtboards`"))))]
     (->> rows
          (mapcat (fn [row]
-                   (let [cell (second (str/split row #"\|"))
-                         methods (map second (re-seq #"`([^`]+)`" cell))
+                   (let [cell (second (split-on row "|"))
+                         methods (backtick-values cell)
                          prefix (first methods)]
                      (map (fn [method]
                             (if (and (str/starts-with? method ".")
