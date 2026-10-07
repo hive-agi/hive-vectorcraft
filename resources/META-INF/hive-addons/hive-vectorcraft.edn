@@ -1,6 +1,6 @@
 {:addon/id "hive.vectorcraft" :addon/kind :addon :addon/type :native
  :addon/version "0.1.0" :addon/init-ns "hive-vectorcraft.addon"
- :addon/init-fn "addon-ctor" :addon/config {}
+ :addon/init-fn "addon-ctor" :addon/config {:control-port 7979}
  :addon/capabilities #{:tools :health-reporting} :addon/dependencies #{}
  :addon/description "VectorCraft command catalog and portable control request builder"
  :addon/maturity :experimental :addon/license "MIT" :addon/trust-class :foss
