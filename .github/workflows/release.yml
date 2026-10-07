@@ -1,0 +1,100 @@
+name: release
+
+# Patch-bump, tag and publish to Clojars when a push changes the library.
+# README / CI-only commits do not mint a version: a published pom is immutable.
+#
+# CI owns patches: push the feature commit only and this workflow picks the
+# number (bump -> changelog -> commit -> tag -> deploy). A minor or major is a
+# human-set VERSION, released as written.
+# Secrets (hive-agi org): CLOJARS_USERNAME, CLOJARS_DEPLOY_TOKEN.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'resources/**'
+      - 'deps.edn'
+      - 'version.edn'
+      - 'test/**'
+      - '.github/workflows/release.yml'
+      # A human-set VERSION (a minor or major) rides the push, as in hive-agent.
+      - 'VERSION'
+  # A push mints a patch unless VERSION names an untagged version, which is
+  # released as written. A dispatch bumps by its level.
+  workflow_dispatch:
+    inputs:
+      level:
+        description: 'Version bump level'
+        required: false
+        default: 'patch'
+        type: choice
+        options: [patch, minor, major]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: DeLaGuardo/setup-clojure@13.7.0
+        with:
+          cli: latest
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.m2/repository
+          key: m2-${{ runner.os }}-${{ hashFiles('deps.edn') }}
+          restore-keys: m2-${{ runner.os }}-
+
+      # Gate before the bump: a red suite must not mint, tag or ship a version.
+      # Unit suite only: the integration suite wants melt on PATH.
+      - name: Test
+        run: clojure -M:test unit
+
+      - name: Bump version
+        # Pinned release (hive-agent): a VERSION without its tag is a line a
+        # human set, released as written. A tagged VERSION is already out, so
+        # a push mints the next patch; a dispatch bumps by its level.
+        run: |
+          VER=$(tr -d '[:space:]' < VERSION)
+          if [ -z "${{ inputs.level }}" ] && ! git rev-parse -q --verify "refs/tags/v$VER" >/dev/null; then
+            echo "VERSION $VER is untagged: releasing it as written"
+          else
+            clojure -T:build bump :level :${{ inputs.level || 'patch' }}
+          fi
+
+      - name: Regenerate changelog
+        run: clojure -T:build changelog
+
+      - name: Commit and tag
+        run: |
+          set -euo pipefail
+          VER=$(cat VERSION)
+          git config user.name  "hive-ci"
+          git config user.email "ci@hive-agi.local"
+          git add VERSION CHANGELOG.md
+          # [skip ci] stops this push from retriggering the workflow.
+          git diff --cached --quiet || git commit -m "chore(release): $VER [skip ci]"
+          # Annotated: `git push --follow-tags` ignores lightweight tags.
+          git tag -a "v$VER" -m "release $VER"
+          git push --follow-tags
+
+      - name: Deploy
+        env:
+          # deps-deploy reads CLOJARS_PASSWORD; the org secret is CLOJARS_DEPLOY_TOKEN.
+          CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
+          CLOJARS_PASSWORD: ${{ secrets.CLOJARS_DEPLOY_TOKEN }}
+        run: clojure -T:build deploy

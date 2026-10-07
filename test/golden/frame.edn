@@ -1,0 +1,6 @@
+{:invalid
+ {:error
+  {:kind :vectorcraft/invalid-frame,
+   :hint
+   "Encode one JSON object with method as a single line; remove line breaks."}},
+ :valid {:ok "{\"method\":\"engine.commands\"}\n"}}

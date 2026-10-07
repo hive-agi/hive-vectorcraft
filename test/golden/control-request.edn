@@ -1,0 +1,10 @@
+{:invalid
+ {:error
+  {:kind :vectorcraft/invalid-params,
+   :hint "Pass params as an object/map."}},
+ :unknown
+ {:error
+  {:kind :vectorcraft/unknown-method,
+   :hint
+   "Unknown control method; run vectorcraft catalog for allowed methods."}},
+ :valid {:ok {:id 9, :method "document.inspect", :params {}}}}
