@@ -1,0 +1,6 @@
+{:absent
+ {:ok
+  {:catalog {:revision "65c5953", :engine 1, :mcp 1, :control 1},
+   :transport :absent,
+   :hint
+   "No live transport in wave 1; inject a ControlTransport. A future cljw loopback client or Rust cdylib adapter can implement this port."}}}
