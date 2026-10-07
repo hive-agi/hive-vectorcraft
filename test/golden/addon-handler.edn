@@ -27,7 +27,7 @@
    :content
    [{:type "text",
      :text
-     ":vectorcraft/unknown-tool-command: Choose catalog, doctor or call."}]},
+     ":vectorcraft/unknown-tool-command: Choose catalog, doctor, call or control."}]},
   :requests []},
  :valid
  {:result {:content [{:type "text", :text "{:id 7}"}]},

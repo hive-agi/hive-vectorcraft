@@ -18,6 +18,10 @@
 (def ErrorValue
   [:map [:kind :keyword] [:hint :string]])
 
+(def SocketConfig
+  [:map [:host :string] [:port [:int {:min 1 :max 65535}]]
+   [:connect-ms pos-int?] [:timeout-ms pos-int?]])
+
 (defn envelope [value]
   [:or [:map [:ok value]] [:map [:error ErrorValue]]])
 
