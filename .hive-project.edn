@@ -1,0 +1,6 @@
+{:project-id  "hive-vectorcraft"
+ :description "IAddon exposing vectorcraft (Rust Illustrator reimplementation) as MCP tools: a portable document/command core (JVM, cljw, cljrs) and a native bridge (Rust cdylib over vectorcraft crates, cljrs sidecar)."
+ :type        :library
+ :kg-backend  :datahike
+ :parent      "hive"
+ :carto       {:source-roots ["dev" "resources" "src" "test"]}}
