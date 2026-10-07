@@ -38,3 +38,16 @@
                  (catch Exception e
                    (core/refusal :vectorcraft/transport-failed
                                  (str "Check the injected transport: " (ex-message e))))))))
+
+(defn control
+  "Validate a catalogued control method (document.inspect, ui.render, app.export, ...) and send it through the injected port."
+  [entries transport method params request-id]
+  (let [built (core/control-request entries method params request-id)]
+    (cond
+      (:error built) built
+      (nil? transport) (core/refusal :vectorcraft/no-transport
+                                     "Start VectorCraft with --control <port> and set :control-port (or VECTORCRAFT_CONTROL_PORT).")
+      :else (try (core/response-line (port/send-request transport (:ok built)))
+                 (catch Exception e
+                   (core/refusal :vectorcraft/transport-failed
+                                 (str "Check that VectorCraft is running with --control: " (ex-message e))))))))
