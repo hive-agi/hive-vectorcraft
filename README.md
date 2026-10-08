@@ -1,10 +1,39 @@
 # hive-vectorcraft
 
-VectorCraft vector editing as a host-neutral `IAddon` (`hive.vectorcraft`): an extracted command catalog, a portable request and response core, one MCP tool, a live control-channel transport to the running VectorCraft app, and a JSON C ABI over its headless engine. Calls without a transport refuse rather than simulate an edit.
+An agent can draw, inspect, render and export vector art in a running VectorCraft app through hive's `vectorcraft` tool.
+
+![Golden comb drawn through the live VectorCraft control channel](docs/showcase/hive-golden-comb.png)
+
+The golden comb was drawn through the live control channel, not mocked or assembled from screenshots. See the [run walkthrough](docs/showcase/README.md) for the calls and the result.
+
+## What it looks like
+
+| View | Call behind it |
+|---|---|
+| ![Full golden comb](docs/showcase/hive-golden-comb.png) | `file.new` made the artboard; `shape.polygon` and `paint.setFill` built and colored the honeycomb. |
+| ![Comb detail](docs/showcase/comb-detail.png) | `shape.polygon`, `paint.setStroke` and `stroke.set` drew the repeating cells. |
+| ![Spiral detail](docs/showcase/spiral-detail.png) | `path.create` drew the spiral as SVG arcs over the cells. |
+| ![Eye detail](docs/showcase/eye-detail.png) | `shape.ellipse` and `text.create` added details; `ui.render` rendered the document. |
+
+The three details are crops of the same live render, not separate runs.
+
+## Try it
+
+1. Add `"hive.vectorcraft" {:control-port 7979}` under `:addons` in hive-mcp's `config.edn`. The [addon manifest](resources/META-INF/hive-addons/hive-vectorcraft.edn) sets the same port by default.
+2. Start the application locally with `vectorcraft --control 7979`. Keep its loopback control port private: the upstream control protocol does not authenticate clients.
+3. With hive-mcp and the addon running, call the `vectorcraft` tool:
+
+```json
+{"command":"control","method":"ui.render","params":{"path":"/tmp/vectorcraft-preview.png"}}
+```
+
+Use `{"command":"catalog","query":"control"}` to list control methods. `command=call` takes an exact `engine_command` and `params` map for engine drawing commands; `command=control` takes a control `method`. Without a running app, drawing calls refuse instead of simulating an edit.
+
+## Measured
+
+This live run used about **600 calls through the control channel** to draw an **809 × 500** golden rectangle: **240 honeycomb cells** lit along a golden spiral drawn with SVG arcs (`path.create`), **48 phi-scaled hexagons**, and a bee at the eye. Its calls included `file.new`, `shape.polygon`, `shape.rectangle`, `shape.ellipse`, `paint.setFill`, `paint.setStroke`, `stroke.set`, `transparency.set`, `text.create`, `ui.render`, `app.save` and `app.export`. These are counts from the golden-comb run, not performance benchmarks.
 
 The reference [VectorCraft](https://github.com/vectorcraft/vectorcraft) is a Rust Illustrator clean-room implementation (revision 65c5953). Its checkout has dual MIT/Apache-2.0 license files. This addon is MIT. [Measured surface and source pointers](docs/reference-surface.md).
-
-![hive-golden-comb, drawn live through this addon](dev/art/hive-golden-comb.png)
 
 ## One vocabulary, several transports
 
