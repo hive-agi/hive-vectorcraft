@@ -10,8 +10,16 @@ name = "vectorcraft"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-vectorcraft-mcp = { path = "/home/klein/PP/hive/clones-ref/vectorcraft/crates/mcp" }
+vectorcraft-mcp = { git = "https://github.com/storytold/vectorcraft.git", rev = "65c5953516f1ba46ce6d3cd558dd759bd6fcf09f" }
 serde_json = "1"
+
+# Size without losing the panic boundary: hive_call relies on catch_unwind,
+# so panic stays "unwind" (never "abort").
+[profile.release]
+strip = true
+lto = "fat"
+codegen-units = 1
+panic = "unwind"
 
 [dev-dependencies]
 libloading = "0.8"
