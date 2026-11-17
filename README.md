@@ -58,7 +58,7 @@ The addon builds a `SocketTransport` from `:control-port` (manifest default 7979
 
 One `vectorcraft` tool with `command` = `catalog`, `doctor`, `call` or `control`:
 
-- `catalog`: no query returns counts and revision; query `engine`, `mcp`, `control` lists that section; any exact engine id returns its descriptor. Extracted data: **519** engine commands, **25** MCP tools and **24** control methods.
+- `catalog`: no query returns counts and revision; query `engine`, `mcp`, `control` lists that section; any exact engine id returns its descriptor. Extracted data at reference revision `0f8040e`: **793** engine commands, **33** MCP tools and **28** control methods.
 - `doctor`: catalog revision, transport present or absent, actionable hint.
 - `call`: `engine_command`, `params`, `id`; checks the exact catalog id and map params before dispatch (`engine.execute`).
 - `control`: `method`, `params`, `id`; any catalogued control method such as `document.inspect`, `ui.render`, `app.save`, `app.export`.

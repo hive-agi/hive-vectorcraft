@@ -56,7 +56,7 @@
    :apply? true :xf (fn [result] (if (:error result) result
                                     (select-keys (update result :engine count)
                                                  [:reference-revision :engine])))
-   :gen (gen/return []) :pred #(= 519 (count (:engine %))) :num-tests 20
+   :gen (gen/return []) :pred #(= 793 (count (:engine %))) :num-tests 20
    :mutations [["empty-reference" (fn [] {:engine [] :reference-revision "unknown"})]]})
 
 (deftrifecta service-call-contract service/call
