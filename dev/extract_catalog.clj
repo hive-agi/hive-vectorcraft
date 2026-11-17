@@ -66,18 +66,47 @@
                       :source (str "crates/engine/src/cmd/" (.getName file))})))
          (sort-by :id) vec)))
 
+(defn- relative [root file]
+  (str (.relativize (.toPath (.getCanonicalFile (io/file root)))
+                    (.toPath (.getCanonicalFile (io/file file))))))
+
+(defn- mcp-files
+  "Rust files that declare MCP tools. Upstream kept them in crates/mcp/src/tools.rs and
+   later split that file into the crates/mcp/src/tools/ module; read whichever exist."
+  [root]
+  (let [base (io/file root "crates/mcp/src")
+        single (io/file base "tools.rs")
+        dir (io/file base "tools")]
+    (concat (when (.isFile single) [single])
+            (when (.isDirectory dir)
+              (->> (file-seq dir)
+                   (filter #(and (.isFile %) (str/ends-with? (.getName %) ".rs")))
+                   (sort-by #(.getPath %)))))))
+
 (defn mcp [root]
-  (let [file (io/file root "crates/mcp/src/tools.rs")]
-    (->> (calls (slurp file) "tool(")
-         (keep (fn [body]
-                 (let [parts (fields body)]
-                   (when (and (<= 5 (count parts)) (str/starts-with? (first parts) "\""))
-                     {:name (literal (first parts)) :title (literal (second parts))
-                      :description (literal (nth parts 2))
-                      ;; Rust composes schema expressions dynamically. Retain their exact
-                      ;; expression; do not misrepresent this as evaluated JSON Schema.
-                      :input-schema-source (nth parts 3)
-                      :source "crates/mcp/src/tools.rs"})))) vec)))
+  (->> (mcp-files root)
+       (mapcat (fn [file]
+                 (let [source (relative root file)]
+                   (keep (fn [body]
+                           (let [parts (fields body)]
+                             (when (and (<= 5 (count parts)) (str/starts-with? (first parts) "\""))
+                               {:name (literal (first parts)) :title (literal (second parts))
+                                :description (literal (nth parts 2))
+                                ;; Rust composes schema expressions dynamically. Retain their exact
+                                ;; expression; do not misrepresent this as evaluated JSON Schema.
+                                :input-schema-source (nth parts 3)
+                                :source source})))
+                         (calls (slurp file) "tool(")))))
+       vec))
+
+(defn- head-sha
+  "Short HEAD sha of the reference checkout, so :reference-revision names what was read."
+  [root]
+  (let [process (.start (ProcessBuilder. ["git" "-C" (str root) "rev-parse" "--short=7" "HEAD"]))
+        sha (str/trim (slurp (.getInputStream process)))]
+    (when-not (zero? (.waitFor process))
+      (throw (ex-info "Reference root is not a git checkout" {:root root})))
+    sha))
 
 (defn control [root]
   (let [lines (str/split-lines (slurp (io/file root "docs/control-protocol.md")))
@@ -98,7 +127,7 @@
 
 (defn -main [root]
   (when-not root (throw (ex-info "Supply VectorCraft reference checkout root" {})))
-  (let [catalog {:reference-revision "65c5953" :engine (engine root)
+  (let [catalog {:reference-revision (head-sha root) :engine (engine root)
                  :mcp (mcp root) :control (control root)}]
     (when (or (empty? (:engine catalog)) (empty? (:mcp catalog)) (empty? (:control catalog)))
       (throw (ex-info "Incomplete extraction" (update-vals (dissoc catalog :reference-revision) count))))

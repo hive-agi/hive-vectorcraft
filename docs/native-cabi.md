@@ -1,13 +1,13 @@
 # VectorCraft native C ABI
 
-The Rust `vectorcraft-cabi` crate wraps the reference's in-process `vectorcraft_mcp::Headless` (`Backend::call`) at reference revision `65c5953516f1ba46ce6d3cd558dd759bd6fcf09f`. It is a GUI-free library, not a process or socket adapter. Version 0.4.0; MIT.
+The Rust `vectorcraft-cabi` crate wraps the reference's in-process `vectorcraft_mcp::Headless` (`Backend::call`) at reference revision `0f8040ef59b88d33dd97563dbb87e8efedf046ff`. It is a GUI-free library, not a process or socket adapter. Version 0.4.0; MIT.
 
 ```c
 char *hive_call(const char *op, const char *request_json);
 void hive_free(char *response);
 ```
 
-Pass an object as UTF-8 JSON. The caller owns the returned string and must release it with `hive_free` (passing null to `hive_free` is safe). A response is either `{"ok":true,"value":...}` or `{"ok":false,"error":"..."}`. Null pointers, malformed JSON, non-UTF-8 strings and unknown operations produce error envelopes. A Rust unwind is caught at both exported boundaries; a caught call panic yields `internal panic: ...`. Arbitrarily invalid non-null C pointers cannot be validated by a C ABI. A panic *inside* the engine while holding the mutex can poison the process-wide session; later calls return an actionable restart error. The session is created lazily and calls are serialized.
+Pass an object as UTF-8 JSON. The caller owns the returned string and must release it with `hive_free` (passing null to `hive_free` is safe). A response is either `{"ok":true,"value":...}` or `{"ok":false,"error":"..."}`. Null pointers, malformed JSON, non-UTF-8 strings and unknown operations produce error envelopes. A Rust unwind is caught at both exported boundaries; a caught call panic yields `internal panic: ...`. Arbitrarily invalid non-null C pointers cannot be validated by a C ABI. Upstream `Headless` is not `Send` (its renderer holds `Rc` caches), so the library runs it on one dedicated owner thread (`vectorcraft-engine`), spawned lazily on the first engine call; that thread constructs and owns the single process-wide session. `hive_call` may be called from any thread (JVM FFM, cljrs, cljw): it sends the request over a channel and blocks on the reply, so every caller sees the same engine and calls are serialized. A panic *inside* the engine is caught on the owner thread and answered as `internal panic: ...`; the thread stays alive but the session is poisoned and later engine calls return an actionable restart error. If the owner thread itself is gone, engine calls return an error envelope instead of blocking. `ops` and `capabilities` never touch the owner thread.
 
 ## Measured operation catalog
 
@@ -33,7 +33,7 @@ These 17 Headless methods are exposed as operations; `ops` and `capabilities` ar
 | `app.export` | Export the active document | false |
 | `app.quit` | Acknowledge quit (the process owns the session) | true |
 
-`capabilities` reports `{library:"vectorcraft",version:"0.4.0",reference:"65c5953516f1ba46ce6d3cd558dd759bd6fcf09f"}`. `app.quit` acknowledges but does not tear down the process-wide session. `timeout_ms` is **advisory**: the synchronous engine cannot be interrupted by this boundary. Callers must arrange external time limits if needed. File-bearing commands can read or write paths provided by callers; use a restricted host process for untrusted requests.
+`capabilities` reports `{library:"vectorcraft",version:"0.4.0",reference:"0f8040ef59b88d33dd97563dbb87e8efedf046ff"}`. `app.quit` acknowledges (value `null`) but does not tear down the process-wide session or its owner thread. `timeout_ms` is **advisory**: the synchronous engine cannot be interrupted by this boundary. Callers must arrange external time limits if needed. File-bearing commands can read or write paths provided by callers; use a restricted host process for untrusted requests.
 
 ## Build and test
 
