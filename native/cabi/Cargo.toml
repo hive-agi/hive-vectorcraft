@@ -10,7 +10,7 @@ name = "vectorcraft"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-vectorcraft-mcp = { git = "https://github.com/storytold/vectorcraft.git", rev = "65c5953516f1ba46ce6d3cd558dd759bd6fcf09f" }
+vectorcraft-mcp = { git = "https://github.com/storytold/vectorcraft.git", rev = "0f8040ef59b88d33dd97563dbb87e8efedf046ff" }
 serde_json = "1"
 
 # Size without losing the panic boundary: hive_call relies on catch_unwind,
@@ -24,3 +24,29 @@ panic = "unwind"
 [dev-dependencies]
 libloading = "0.8"
 base64 = "0.22"
+
+# Mirrored verbatim from storytold/vectorcraft 0f8040ef5 Cargo.toml: workspace [patch] tables
+# do not propagate to a downstream crate, so the C ABI crate must repeat them.
+[patch.crates-io]
+hayro-syntax = { git = "https://github.com/storytold/craft-libs", rev = "0cca4ac66f9f4576b3acc5f84d7a2a2ae9fb943e" }
+hayro-interpret = { git = "https://github.com/storytold/craft-libs", rev = "0cca4ac66f9f4576b3acc5f84d7a2a2ae9fb943e" }
+hayro-jbig2 = { git = "https://github.com/storytold/craft-libs", rev = "0cca4ac66f9f4576b3acc5f84d7a2a2ae9fb943e" }
+hayro-cmap = { git = "https://github.com/storytold/craft-libs", rev = "0cca4ac66f9f4576b3acc5f84d7a2a2ae9fb943e" }
+hayro-postscript = { git = "https://github.com/storytold/craft-libs", rev = "0cca4ac66f9f4576b3acc5f84d7a2a2ae9fb943e" }
+krilla = { git = "https://github.com/storytold/craft-libs", rev = "0cca4ac66f9f4576b3acc5f84d7a2a2ae9fb943e" }
+linesweeper = { git = "https://github.com/storytold/craft-libs", rev = "0cca4ac66f9f4576b3acc5f84d7a2a2ae9fb943e" }
+ecolor = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
+emath = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
+epaint = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
+epaint_default_fonts = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
+egui = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
+egui-winit = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
+egui-wgpu = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
+egui_glow = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
+egui_extras = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
+egui_kittest = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
+egui_system_font_provider = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
+eframe = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
+egui_demo_lib = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
+egui_inspection = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
+winit = { git = "https://github.com/storytold/winit.git", rev = "a517b3846ee8457d84ee4975110bfda6797c44dc" }
