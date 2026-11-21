@@ -1,22 +1,22 @@
 {:paths ["src" "resources"]
  :deps {org.clojure/clojure {:mvn/version "1.12.6"}
         org.clojure/data.json {:mvn/version "2.5.2"}
-        io.github.hive-agi/hive-addon {:mvn/version "1.1.10"}
-        io.github.hive-agi/hive-help {:mvn/version "0.1.6"}
-        io.github.hive-agi/hive-dsl {:mvn/version "0.5.37"}
+        io.github.hive-agi/hive-addon {:mvn/version "1.1.13"}
+        io.github.hive-agi/hive-help {:mvn/version "0.2.1"}
+        io.github.hive-agi/hive-dsl {:mvn/version "0.6.2"}
         metosin/malli {:mvn/version "0.20.3"}
-        io.github.hive-agi/hive-schemas {:mvn/version "0.1.40"}}
+        io.github.hive-agi/hive-schemas {:mvn/version "0.2.2"}}
  :aliases {:dev {:extra-paths ["test" "dev"]
                  :extra-deps {nrepl/nrepl {:mvn/version "1.8.0"}
                               cider/cider-nrepl {:mvn/version "0.62.2"}
                               lambdaisland/kaocha {:mvn/version "1.91.1392"}
                               org.clojure/test.check {:mvn/version "1.1.3"}
-                              io.github.hive-agi/hive-test {:mvn/version "0.5.0"}}}
+                              io.github.hive-agi/hive-test {:mvn/version "0.5.2"}}}
            :test {:extra-paths ["test" "dev"]
                   :extra-deps {lambdaisland/kaocha {:mvn/version "1.91.1392"}
                                org.clojure/test.check {:mvn/version "1.1.3"}
-                               io.github.hive-agi/hive-test {:mvn/version "0.5.0"}}
+                               io.github.hive-agi/hive-test {:mvn/version "0.5.2"}}
                   :main-opts ["-m" "kaocha.runner"]}
-           :build {:deps {io.github.hive-agi/hive-build {:mvn/version "0.1.28"}}
+           :build {:deps {io.github.hive-agi/hive-build {:mvn/version "0.3.1"}}
                    :ns-default hive-build.api}
            :cljs {:extra-paths ["dev"] :extra-deps {thheller/shadow-cljs {:mvn/version "3.5.7"}}}}}
